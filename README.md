@@ -1,3 +1,8 @@
+# SSSTI
+Sistema de Solicitações de Suporte de TI
+
+```mermaid
+
 graph TB
     subgraph "Cliente"
         A[👤 Usuário/Cliente]
@@ -46,3 +51,4 @@ graph TB
     classDef aws fill:#ff9900,stroke:#232f3e,stroke-width:2px,color:#fff
     classDef client fill:#e1f5ff,stroke:#232f3e,stroke-width:2px
     classDef output fill:#90ee90,stroke:#232f3e,stroke-width:2px
+```
