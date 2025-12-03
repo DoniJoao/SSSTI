@@ -1,6 +1,3 @@
-# SSSTI
-Sistema de Solicitações de Suporte de TI
-
 graph TB
     subgraph "Cliente"
         A[👤 Usuário/Cliente]
