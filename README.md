@@ -39,14 +39,14 @@ graph TB
     E -->|7. Publica Mensagem| G
     G -->|8. Envia Notificação| H
     
-    style A fill:#e1f5ff
-    style B fill:#ff9900
-    style C fill:#ff9900
-    style D fill:#ff4f8b
-    style E fill:#ff9900
-    style F fill:#4053d6
-    style G fill:#ff9900
-    style H fill:#90ee90
+    style A fill:#2D3748,stroke:#4A5568,color:white,stroke-width:2px
+    style B fill:#4A5568,stroke:#718096,color:white,stroke-width:2px
+    style C fill:#4A5568,stroke:#718096,color:white,stroke-width:2px
+    style D fill:#553C9A,stroke:#805AD5,color:white,stroke-width:2px
+    style E fill:#4A5568,stroke:#718096,color:white,stroke-width:2px
+    style F fill:#234E52,stroke:#285E61,color:white,stroke-width:2px
+    style G fill:#4A5568,stroke:#718096,color:white,stroke-width:2px
+    style H fill:#2F855A,stroke:#38A169,color:white,stroke-width:2px
     
     classDef aws fill:#ff9900,stroke:#232f3e,stroke-width:2px,color:#fff
     classDef client fill:#e1f5ff,stroke:#232f3e,stroke-width:2px
