@@ -3,29 +3,27 @@ import boto3
 import base64
 import uuid
 from datetime import datetime
-from decimal import Decimal
 
-# Inicializa clientes AWS
+
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
 sns = boto3.client('sns')
 
-# Configurações (VOCÊ VAI PREENCHER DEPOIS)
-DYNAMODB_TABLE = 'TicketsSuporte'  # Nome da sua tabela
-S3_BUCKET = 'suporte-ti-arquivos'  # Nome do seu bucket
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:XXXXX:NotificacaoSuporte'  # ARN do seu tópico SNS
+
+import os
+DYNAMODB_TABLE = os.environ.get('DYNAMODB_TABLE', 'TicketsSuporte')
+S3_BUCKET = os.environ.get('S3_BUCKET', 'suporte-ti-arquivos')
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
 
 def lambda_handler(event, context):
-    """
-    Função principal que processa solicitações de suporte
-    """
+
     
     print("========== INÍCIO DA EXECUÇÃO ==========")
     print(f"Evento recebido: {json.dumps(event)}")
     print(f"Tipo do evento: {type(event)}")
     
     try:
-        # Parse do body (vem do API Gateway)
+        
         print("========== PARSE DO BODY ==========")
         if 'body' in event:
             print("Body encontrado no event")
@@ -36,7 +34,7 @@ def lambda_handler(event, context):
         
         print(f"Body processado: {json.dumps(body)}")
         
-        # Validação básica dos campos obrigatórios
+
         print("========== VALIDAÇÃO DE CAMPOS ==========")
         campos_obrigatorios = ['nome', 'email', 'telefone', 'tipoProblema', 'descricao']
         for campo in campos_obrigatorios:
@@ -44,14 +42,14 @@ def lambda_handler(event, context):
                 print(f"ERRO: Campo obrigatório ausente: {campo}")
                 return resposta_erro(f"Campo obrigatório ausente: {campo}", 400)
         
-        # Gera ID único para o ticket
+  
         ticket_id = str(uuid.uuid4())
         timestamp = datetime.now().isoformat()
         print(f"========== TICKET CRIADO ==========")
         print(f"Ticket ID: {ticket_id}")
         print(f"Timestamp: {timestamp}")
         
-        # Processa arquivo se existir
+
         arquivo_url = None
         if 'arquivo' in body and body['arquivo']:
             arquivo_url = processar_arquivo(
@@ -59,7 +57,7 @@ def lambda_handler(event, context):
                 body['arquivo']
             )
         
-        # Prepara dados para o DynamoDB
+
         ticket_data = {
             'ticketId': ticket_id,
             'nome': body['nome'],
@@ -74,18 +72,18 @@ def lambda_handler(event, context):
             'atualizadoEm': timestamp
         }
         
-        # Salva no DynamoDB
+  
         salvar_ticket(ticket_data)
         
-        # Envia notificação por email
+
         enviar_notificacao(ticket_data)
         
-        # Retorna sucesso
+
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',  # CORS
+                'Access-Control-Allow-Origin': '*', 
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS'
             },
@@ -102,21 +100,19 @@ def lambda_handler(event, context):
 
 
 def processar_arquivo(ticket_id, arquivo_data):
-    """
-    Faz upload do arquivo para o S3 e retorna a URL
-    """
+    
     try:
         arquivo_nome = arquivo_data['nome']
         arquivo_tipo = arquivo_data['tipo']
         arquivo_conteudo = arquivo_data['conteudo']
         
-        # Decodifica base64
+    
         arquivo_bytes = base64.b64decode(arquivo_conteudo)
         
-        # Define o caminho no S3
+        
         s3_key = f"tickets/{ticket_id}/{arquivo_nome}"
         
-        # Upload para S3
+        
         s3.put_object(
             Bucket=S3_BUCKET,
             Key=s3_key,
@@ -128,7 +124,7 @@ def processar_arquivo(ticket_id, arquivo_data):
             }
         )
         
-        # Retorna a URL do arquivo
+        
         arquivo_url = f"s3://{S3_BUCKET}/{s3_key}"
         print(f"Arquivo salvo: {arquivo_url}")
         
@@ -140,9 +136,7 @@ def processar_arquivo(ticket_id, arquivo_data):
 
 
 def salvar_ticket(ticket_data):
-    """
-    Salva o ticket no DynamoDB
-    """
+    
     try:
         table = dynamodb.Table(DYNAMODB_TABLE)
         table.put_item(Item=ticket_data)
@@ -154,11 +148,9 @@ def salvar_ticket(ticket_data):
 
 
 def enviar_notificacao(ticket_data):
-    """
-    Envia notificação por email via SNS
-    """
+    
     try:
-        # Monta a mensagem do email
+        
         mensagem = f"""
 Nova Solicitação de Suporte Recebida!
 
@@ -198,7 +190,7 @@ Data/Hora: {ticket_data['criadoEm']}
 ⚡ Entre em contato com o cliente o mais breve possível!
         """
         
-        # Publica no SNS
+        
         sns.publish(
             TopicArn=SNS_TOPIC_ARN,
             Subject=f'🎫 Novo Ticket #{ticket_data["ticketId"][:8]} - {ticket_data["tipoProblema"]}',
@@ -209,14 +201,12 @@ Data/Hora: {ticket_data['criadoEm']}
         
     except Exception as e:
         print(f"Erro ao enviar notificação SNS: {str(e)}")
-        # Não falha a função se o email não for enviado
+        
         pass
 
 
 def resposta_erro(mensagem, status_code):
-    """
-    Retorna uma resposta de erro padronizada
-    """
+    
     return {
         'statusCode': status_code,
         'headers': {
