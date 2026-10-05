@@ -10,10 +10,9 @@ s3 = boto3.client('s3')
 sns = boto3.client('sns')
 
 
-import os
-DYNAMODB_TABLE = os.environ.get('DYNAMODB_TABLE', 'TicketsSuporte')
-S3_BUCKET = os.environ.get('S3_BUCKET', 'suporte-ti-arquivos')
-SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
+DYNAMODB_TABLE = 'TicketsSuporte'  # Nome da sua tabela
+S3_BUCKET = 'suporte-ti-arquivos'  # Nome do seu bucket
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:XXXXX:NotificacaoSuporte'  # ARN do seu tópico SNS
 
 def lambda_handler(event, context):
 
